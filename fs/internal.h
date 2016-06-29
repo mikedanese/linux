@@ -15,6 +15,7 @@ struct iomap;
 struct linux_binprm;
 struct path;
 struct mount;
+struct spinlock_t;
 struct shrink_control;
 
 /*
@@ -72,6 +73,9 @@ extern int __mnt_want_write(struct vfsmount *);
 extern int __mnt_want_write_file(struct file *);
 extern void __mnt_drop_write(struct vfsmount *);
 extern void __mnt_drop_write_file(struct file *);
+
+extern struct list_head mntns_list;
+extern spinlock_t mntns_list_lock;
 
 /*
  * fs_struct.c
