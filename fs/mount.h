@@ -9,6 +9,7 @@ struct mnt_namespace {
 	struct ns_common	ns;
 	struct mount *	root;
 	struct list_head	list;
+	struct list_head	mntns_list;
 	struct user_namespace	*user_ns;
 	u64			seq;	/* Sequence number to prevent loops */
 	wait_queue_head_t poll;
@@ -47,6 +48,8 @@ struct mount {
 	struct list_head mnt_instance;	/* mount instance on sb->s_mounts */
 	const char *mnt_devname;	/* Name of device e.g. /dev/dsk/hda1 */
 	struct list_head mnt_list;
+	struct list_head mnt_stack;
+	bool visited;
 	struct list_head mnt_expire;	/* link in fs-specific expiry list */
 	struct list_head mnt_share;	/* circular list of shared mounts */
 	struct list_head mnt_slave_list;/* list of slave mounts */

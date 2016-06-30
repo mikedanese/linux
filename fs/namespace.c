@@ -2718,10 +2718,16 @@ dput_out:
 	return retval;
 }
 
+DEFINE_SPINLOCK(mntns_list_lock);
+LIST_HEAD(mntns_list);
+
 static void free_mnt_ns(struct mnt_namespace *ns)
 {
 	ns_free_inum(&ns->ns);
 	put_user_ns(ns->user_ns);
+	spin_lock(&mntns_list_lock);
+	list_del(&ns->mntns_list);
+	spin_unlock(&mntns_list_lock);
 	kfree(ns);
 }
 
@@ -2747,6 +2753,9 @@ static struct mnt_namespace *alloc_mnt_ns(struct user_namespace *user_ns)
 		kfree(new_ns);
 		return ERR_PTR(ret);
 	}
+	spin_lock(&mntns_list_lock);
+	list_add(&new_ns->mntns_list, &mntns_list);
+	spin_unlock(&mntns_list_lock);
 	new_ns->ns.ops = &mntns_operations;
 	new_ns->seq = atomic64_add_return(1, &mnt_ns_seq);
 	atomic_set(&new_ns->count, 1);
